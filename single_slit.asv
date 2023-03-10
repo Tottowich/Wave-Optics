@@ -1,0 +1,120 @@
+% BASIC IMAGE ANALYSIS SCRIPT
+% This script is intended as an example to help you analyze the pictures you have acquired
+% during the "Diffraction, interference and Fourier filtering" lab. Notice that you cannot
+% simply run the algorithm "as it is", you will need to change a few things to make it
+% work with your images (therefore you will have to understand it, contact your lab
+% supervisor if you have questions). You can also write your own algorithm making
+% different steps if you want (this here is just for inspiration).
+
+close all; clear all;
+%%
+lamb = 632.8*10^-9;
+b = 2*10^-5;
+new_b = @(th,m) lamb.*m./(th*pi/180);%sind(th);
+L = 0.972;
+rel_err = @(th,m) (new_b(th,m)-b)./b;
+%% Import the image to Matlab
+myImage1 = imread('Images/SingleSlitNew/singleSlit.jpg');
+
+%% Display the image as a figure
+figure(1)
+imagesc(myImage1);
+title('Step 1: original image');
+
+%% Select the RGB color channel to use (in this case the blue, as it is less saturated)
+myImage2 = myImage1(:,:,1);
+figure(2)
+imagesc(myImage2);
+title('Step2: using the blue channel only');
+
+%% Apply a median filter to reduce hotspots
+myImage3 = medfilt2(myImage2);
+figure(3)
+imagesc(myImage3);
+title('Step 3: after median filtering');
+
+%% Rotate the image so that the diffraction pattern is horizontal
+myImage4 = imrotate(myImage3, 1.25);
+figure(4)
+imagesc(myImage4);
+title('Step 4: after rotation');
+
+%% Cut a region of interest within the image, where the diffraction pattern is contained
+%myImage5 = myImage4(1450:1550, 1000:3000); Double Slit
+myImage5 = myImage4(1550:1700, :);
+
+figure(5)
+imagesc(myImage5);
+
+%% Integrate over the first dimension (i.e. vertically) to get the total counts per pixel.
+data1 = sum(myImage5);
+figure(6);
+plot(data1);
+title('Step 6: vertically integrate the signal');
+
+%% Substract the background baseline
+baseline = 2800 + (3600/length(data1)) * (1:length(data1));
+data2 = data1 + baseline;
+figure(7);
+plot(data2);
+
+%% Calibrate the pixel with space. Using the mm paper in the image I see that 420 px
+% correspond to 50 mm. Therefore, 8.4 px/mm (I leave the error calculations to you :p ).
+% Notice that I have centered the 0 at the main peak.
+xAxisMm = ((1 : length(data2)) - (1391+2399)/2) / (85/5); % Single Slit
+P = (1391-2399)/2;
+S = (85/5);
+figure;
+plot(xAxisMm, data2);
+xlabel('Distance (mm)');
+ylabel('Counts (a.u.)');
+title('Step 7: Calibrate the data from signal-vs-pixels into signal-vs-distance');
+
+%% Calibrate the space with angle. For this example, I used a distance between the
+% diffraction slit and the screen of 1 meter. Normalize and plot the results nicely.
+xAxisDeg = atand(xAxisMm / 1000*L);
+f = figure;
+data3 = data2 / max(data2);
+plot(xAxisDeg, data3);
+xlim([-6 , 6]);
+ylim([0 , 1]);
+xlabel('Angle (°)');
+ylabel('Normalized signal');
+title('Final step: normalized signal vs angle');
+grid on;
+% b
+%%
+visualize = true;
+[PKS,LOCS] = find_min(data3,xAxisDeg,0.2,inf,visualize);
+if visualize
+    grid on;
+    xlabel('Angle (°)');
+    ylabel('Normalized signal');
+    title('Normalized signal vs angle with Min peaks');
+    xlim([-6 , 6]);
+    ylim([0 , 1]);
+end
+left_hand = sum(LOCS<0);
+right_hand = sum(LOCS>=0);
+thetas = LOCS*pi/180;
+m = [-left_hand:-1 1:right_hand];
+bs = new_b(LOCS,m);
+%%
+b_mean = mean(bs);
+b_std = std(bs);
+
+bx = (-4*b_std:b_std/100:4*b_std)+b_mean;
+y = normpdf(bx,b_mean,b_std);
+plot(bx,y)
+%% ERROR ANALYSIS
+N = length(bs);
+dL = 1*10^-3;
+dP = 5;
+dS = 0.5;
+
+dy = sqrt((dP/S)^2+(P*dS/(S^2))^2);
+
+dTh = (1/L)*sqrt(dy^2+(thetas*dL).^2);
+
+db = sqrt((m.
+

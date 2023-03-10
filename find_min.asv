@@ -1,0 +1,16 @@
+function [PKS,LOCS] = find_min(data,X,peak_width,peak_width,visualize)
+if nargin<=3
+    visualize = false;
+end
+%FIND_MIN Find the minimum peaks of the data
+[PKS,LOCS] = findpeaks(-data,X,'MinPeakWidth',peak_width(1),"); % Find the minimum
+PKS = -PKS;
+if visualize
+    findpeaks(-data,X,'MinPeakWidth',peak_width)
+    plot(X,data);
+    hold on
+    scatter(LOCS,PKS,'r^','filled');
+    hold off
+end
+end
+
