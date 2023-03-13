@@ -66,6 +66,7 @@ if show_steps
     xlabel('Angle (°)');
     ylabel('Normalized signal');
     title('Normalized signal vs angle with Min peaks');
+    legend(["Exp - values","Minima","Analytical"]);
     xlim([-2 , 2]);
     ylim([0 , 1]);
 end

@@ -92,7 +92,7 @@ dP = 25;
 dy = dP/(S*10^3);
 
 mabs = abs(m);
-dd = sqrt((dL*lamb*(mabs-1/2)./y_interference).^2+((mabs-1/2).*L*dy*lamb./(y_interference.^2)).^2);
+dd = sqrt((dL*lamb*mabs./y_interference).^2+(mabs.*L*dy*lamb./(y_interference.^2)).^2);
 dd_mean = sqrt(mean(dd.^2));
 dd_std = std(dd);
 fprintf("Interference\n");

@@ -60,7 +60,7 @@ if show_steps
     hold on
     degs = atand(y_interference/L);
     scatter(degs,PKS,'r^','filled');
-    plot(rad2deg(thetas_analytical),R);
+    plot(rad2deg(thetas_analytical),R,"m");
     hold off
     grid on;
     xlabel('Angle (°)');
@@ -68,7 +68,7 @@ if show_steps
     title('Normalized signal vs angle with Min peaks');
     xlim([-3.2, 3.2]);
     ylim([0 , 1]);
-    legend(["Exp - values","Maxima","Analytical"])  
+    legend(["Exp - values","Minima","Analytical"])  
 end
 left_hand = sum(y_interference<0);
 right_hand = sum(y_interference>=0);

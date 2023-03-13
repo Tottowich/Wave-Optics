@@ -1,10 +1,12 @@
 %%
 % Example image:
 RGB = imread("./Images/UnFiltered/sharp.jpg");
+% Physically filtered image:
+RGB_filtered = imread("./Images/Filtered/cropped.png");
 cols = 3;
 rows = 2;
 subplot(rows,cols,1);
-radius = 33;
+radius = 25;
 imshow(RGB)
 % Gray scale:
 title("Input Image")
@@ -53,6 +55,25 @@ title("Filtered Image")
 sgtitle("Fourier Transform")
 ax.TitleHorizontalAlignment = 'left'; 
 %%
+% Subplot of the cropped pre filtered image and the cropped post filtered image:
+figure(1)
+subplot(1,2,1)
+imshow(RGB_filtered)
+title("Physically Filtered")
+subplot(1,2,2)
+imshow(sharp)
+title("Post Filtered")
+sgtitle("Fourier Transform")
+% Subplot of the cropped pre filtered image and input image:
+figure(2)
+subplot(1,2,1)
+imshow(RGB)
+title("Input Image")
+subplot(1,2,2)
+imshow(RGB_filtered)
+title("Physically Filtered")
+sgtitle("Fourier Transform")
+
 
 function I = centercrop(I,N,M)
 
