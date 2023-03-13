@@ -59,7 +59,7 @@ if show_steps
     grid on;
     xlabel('Angle (°)');
     ylabel('Normalized signal');
-    title('Normalized signal vs angle with Min peaks');
+    title('Normalized signal vs angle with Max peaks');
     xlim([-12 , 12]);
     ylim([0 , 1]);
 end

@@ -7,6 +7,7 @@ function [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x,
     % supervisor if you have questions). You can also write your own algorithm making
     % different steps if you want (this here is just for inspiration).
     %% Import the image to Matlab
+    %{
     arguments
         path (1,1) string
         channel (1,1) double = 3;
@@ -21,7 +22,9 @@ function [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x,
         mm_limit (:,1) double = [-100,100];
         deg_limit (:,1) double = [-2,2];
     end
+    %}
     % Print input arguments
+    %{
     fprintf("path: %s",path)
     fprintf("channel: %d",channel)
     fprintf("rotation: %d",rotation)
@@ -34,7 +37,7 @@ function [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x,
     fprintf("show_steps: %d",show_steps)
     fprintf("mm_limit: %d",mm_limit)
     fprintf("deg_limit: %d",deg_limit)
-    
+    %}
     
     myImage1 = imread(path);
 
@@ -70,8 +73,6 @@ function [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x,
 
     %% Cut a region of interest within the image, where the diffraction pattern is contained
     %myImage5 = myImage4(1450:1550, 1000:3000); Double Slit
-    disp(strcmp(sec_x,"all"))
-    disp(sec_x)
     if strcmp(sec_x,"all")==1
         myImage5 = myImage4(sec_y, :);
     else
@@ -112,7 +113,7 @@ function [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x,
 
     %% Calibrate the space with angle. For this example, I used a distance between the
     % diffraction slit and the screen of 1 meter. Normalize and plot the results nicely.
-    xAxisDeg = atand(xAxisMm / 1000*L);
+    xAxisDeg = atand(xAxisMm / (1000*L));
     f = figure;
     data3 = data2 / max(data2);
     if show_steps

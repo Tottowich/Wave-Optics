@@ -45,7 +45,7 @@ end
 if show_steps
     plot(xAxisDeg,data3);
     hold on
-    degs = atand(LOCS / 1000*L);
+    degs = atand(y_interference/L);
     scatter(degs,PKS,'r^','filled');
     hold off
     grid on;

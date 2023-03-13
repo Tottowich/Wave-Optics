@@ -48,7 +48,7 @@ end
 if show_steps
     plot(xAxisDeg,data3);
     hold on
-    degs = atand(y_diffraction*L);
+    degs = atand(y_diffraction/L);
     scatter(degs,PKS,'r^','filled');
     hold off
     grid on;
