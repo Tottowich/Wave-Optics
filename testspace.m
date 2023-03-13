@@ -22,7 +22,7 @@ title("Fourier Plane")
 
 centerX = ceil(N/2);
 centerY = ceil(M/2);
-distFromCenter = sqrt((X-centerX).^2+(Y-centerY).^2);
+distFromCenter =sqrt((X-centerX).^2+(Y-centerY).^2);
 lowpass = (distFromCenter <= radius)';
 fourier_filtered = fourier_plane.*lowpass;
 fourier_removed = fourier_plane.*(lowpass==0);
@@ -44,12 +44,14 @@ subplot(rows,cols,2)
 imshow(removed_img)
 title("Removed Noise")
 
-subplot(rows,cols,3)
+ax = subplot(rows,cols,3);
 imshow(filtered_img)
-sharp = imsharpen(filtered_img,'Amount',10);
+sharp = imsharpen(filtered_img,'Amount',1);
 subplot(rows,cols,3)
 imshow(sharp)
 title("Filtered Image")
+sgtitle("Fourier Transform")
+ax.TitleHorizontalAlignment = 'left'; 
 %%
 
 function I = centercrop(I,N,M)
