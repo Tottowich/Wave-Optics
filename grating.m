@@ -8,22 +8,33 @@
 
 close all; clear all;
 %%
-lamb = 633*10^-9;
-b = 4*10^-5;
-a = 1.25*10^-4;
-d = 1/(144*10^3);
+lamb = 632.8*10^-9;
 L = 0.22;
+N = 144*10^3;
+d = 1/N;
+thetas_analytical = deg2rad(-25:0.01:25);
+Beta = @(theta) (pi*d)*sin(theta)./lamb;
+Alpha = @(theta) (pi*d)*sin(theta)./lamb;
+beta = Beta(thetas_analytical);
+alph = Alpha(thetas_analytical);
+diff = (sin(beta)./beta).^2;
+diff = sinc(beta).^2;
+inter = (sin(N.*alph)./sin(alph)).^2.*(mod(alph,pi)~=0)+N.^2*(mod(alph,pi)==0);
+R = diff.*inter;
+R = R./max(R);
+plot(rad2deg(thetas_analytical),R)
 new_d_max = @(y,m) lamb*m*L./y;
 new_b_min = @(y,m) lamb*m*L./y;
 new_a_min = @(y,m) lamb*(m-1/2)*L./y;
 rel_err = @(y,m) (new_b(y,m)-b)/b;
 show_steps = true;
+offset = 2.5e4;
 %%
 path = 'Images/Grating/grating.jpg';
 channel = 1;
 rotation = 4;
 sec_x = "all";
-sec_y = 1000:1600;
+sec_y = 950:1300;
 baseline_sign = 0; % No baseline subtraction or addition
 shift = (2590+1427)/2;
 S = (833-616)/5; %px/mm
@@ -32,10 +43,10 @@ show_steps = true;
 mm_limit = [-60,60];
 deg_limit = [-12,12];
 [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x, ...
-               sec_y,baseline_sign,shift,S,L,show_steps,mm_limit,deg_limit);
+               sec_y,baseline_sign,shift,S,L,show_steps,mm_limit,deg_limit,offset);
 %% Import the image to Matlab
 
-myImage1 = imread('Images/Grating/grating.jpg');
+%myImage1 = imread('Images/Grating/grating.jpg');
 
 visualize = true;
 % Interference : a
@@ -49,12 +60,13 @@ if visualize
     xlim([-60 , 60]);
     ylim([0 , 1]);
 end
-
+%% Theoretical intensity.
 if show_steps
     plot(xAxisDeg,data3);
     hold on
     degs = atand(y_interference/L);
     scatter(degs,PKS,'r^','filled');
+    plot(rad2deg(thetas_analytical),R,"m")
     hold off
     grid on;
     xlabel('Angle (°)');
@@ -62,6 +74,8 @@ if show_steps
     title('Normalized signal vs angle with Max peaks');
     xlim([-12 , 12]);
     ylim([0 , 1]);
+    legend(["Exp - values","Maxima","Analytical"])
+   
 end
 
 left_hand = sum(y_interference<0);

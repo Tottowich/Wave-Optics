@@ -11,6 +11,17 @@ close all; clear all;
 lamb = 632.8*10^-9;
 b = 2*10^-5;
 L = 0.972;
+N = 1;
+
+thetas_analytical = deg2rad(-7:0.001:7);
+Beta = @(theta) pi*b*sin(theta)./lamb;
+%Alpha = @(theta) pi*a*sin(theta)./lamb;
+beta = Beta(thetas_analytical);
+%alph = Alpha(thetas_analytical);
+diff = (sin(beta)./beta).^2;
+%inter = (sin(N.*alph)./sin(alph)).^2;
+R = diff./max(diff);
+plot(rad2deg(thetas_analytical),R);
 
 new_b = @(y,m) lamb.*m*L./y;%sind(th);
 rel_err = @(y,m) (new_b(y,m)-b)./b;
@@ -21,7 +32,7 @@ channel = 1;
 rotation = 1.25;
 sec_x = 1:4098;
 sec_y = 1550:1700;
-baseline_sign = 1; % No baseline subtraction or addition
+baseline_sign = 0.35; % No baseline subtraction or addition
 shift = (1391+2399)/2;
 S = (85/5);
 L = 0.972;
@@ -48,6 +59,7 @@ if show_steps
     hold on
     degs = atand(y_diffraction/L);
     scatter(degs,PKS,'r^','filled');
+    plot(rad2deg(thetas_analytical),R,"m")
     hold off
     grid on;
     xlabel('Angle (°)');
@@ -55,6 +67,8 @@ if show_steps
     title('Normalized signal vs angle with Min peaks');
     xlim([-6 , 6]);
     ylim([0 , 1]);
+    legend(["Exp - values","Maxima","Analytical"])
+
 end
 left_hand = sum(y_diffraction<0);
 right_hand = sum(y_diffraction>=0);

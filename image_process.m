@@ -1,4 +1,4 @@
-function [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x,sec_y,baseline_sign,shift,S,L,show_steps,mm_limit,deg_limit)
+function [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x,sec_y,baseline_sign,shift,S,L,show_steps,mm_limit,deg_limit,offset)
     % BASIC IMAGE ANALYSIS SCRIPT
     % This script is intended as an example to help you analyze the pictures you have acquired
     % during the "Diffraction, interference and Fourier filtering" lab. Notice that you cannot
@@ -93,7 +93,7 @@ function [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x,
 
     %% Substract the background baseline
     baseline = 2800 + (3600/length(data1)) * (1:length(data1));
-    data2 = data1 + baseline_sign*baseline;
+    data2 = data1 + baseline_sign*baseline-offset;
     if show_steps
         figure(7);
         plot(data2);
