@@ -45,7 +45,7 @@ offset = 1700;
                sec_y,baseline_sign,shift,S,L,show_steps,mm_limit,deg_limit,offset);
 %% Interference : a
 visualize = true;
-[PKS,LOCS] = find_min(data3,xAxisMm,0.5,3,visualize);
+[PKS,LOCS] = find_min(data3,xAxisMm,0.5,2.5,visualize);
 y_interference = LOCS*10^-3;
 if visualize
     grid on;

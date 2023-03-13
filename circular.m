@@ -18,10 +18,10 @@ new_rel_err = @(y,m) (new_b(y,m)-b)./b;
 rel_err = @(app,real) abs((app-real)./real);
 
 thetas_analytical = deg2rad(-2.5:0.001:2.5);
-k = 2*pi./lamb;
+k = pi./lamb;
 
 %inter = cos(alph).^2;
-X = k*b*sin(thetas_analytical);
+X = 2*k*(b/2)*sin(thetas_analytical);
 R = (2*besselj(1,X)./X).^2;
 R = R./max(R);
 plot(rad2deg(thetas_analytical),R);

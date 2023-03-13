@@ -39,8 +39,9 @@ L = 0.972;
 show_steps = true;
 mm_limit = [-100,100];
 deg_limit = [-2,2];
+offset = 4000;
 [xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x, ...
-               sec_y,baseline_sign,shift,S,L,show_steps,mm_limit,deg_limit);
+               sec_y,baseline_sign,shift,S,L,show_steps,mm_limit,deg_limit,offset);
 %%
 % Diffraction : b
 visualize = true;
