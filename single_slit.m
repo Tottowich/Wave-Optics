@@ -14,8 +14,71 @@ L = 0.972;
 
 new_b = @(y,m) lamb.*m*L./y;%sind(th);
 rel_err = @(y,m) (new_b(y,m)-b)./b;
-show_steps = false;
+
 %% Import the image to Matlab
+path = 'Images/SingleSlitNew/singleSlit.jpg';
+channel = 1;
+rotation = 1.25;
+sec_x = 1:4098;
+sec_y = 1550:1700;
+baseline_sign = 1; % No baseline subtraction or addition
+shift = (1391+2399)/2;
+S = (85/5);
+L = 0.972;
+show_steps = true;
+mm_limit = [-100,100];
+deg_limit = [-2,2];
+[xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x, ...
+               sec_y,baseline_sign,shift,S,L,show_steps,mm_limit,deg_limit);
+%%
+% Diffraction : b
+visualize = true;
+[PKS,LOCS] = find_min(data3,xAxisMm,2.5,inf,visualize);
+y_diffraction = LOCS*10^-3;
+if visualize
+    grid on;
+    xlabel('mm - displacement');
+    ylabel('Normalized signal');
+    title('Normalized signal vs angle with Min peaks');
+    xlim([-100 , 100]);
+    ylim([0 , 1]);
+end
+if show_steps
+    plot(xAxisDeg,data3);
+    hold on
+    degs = atand(LOCS / 1000*L);
+    scatter(degs,PKS,'r^','filled');
+    hold off
+    grid on;
+    xlabel('Angle (°)');
+    ylabel('Normalized signal');
+    title('Normalized signal vs angle with Min peaks');
+    xlim([-6 , 6]);
+    ylim([0 , 1]);
+end
+left_hand = sum(y_diffraction<0);
+right_hand = sum(y_diffraction>=0);
+m = [-left_hand:-1 1:right_hand];
+slit_widths = new_b(y_diffraction,m);
+b_mean = mean(slit_widths);
+b_std = std(slit_widths);
+%% Diffraction Error:
+N_diffraction = length(slit_widths);
+dL = 5*10^-3;
+dP = 25;
+dy = dP/(S*10^3);
+
+mabs = abs(m);
+db =sqrt((dL*lamb*mabs./y_diffraction).^2+(mabs.*L*dy*lamb./(y_diffraction.^2)).^2);
+db_mean = sqrt(mean(db.^2));
+db_std = std(db);
+fprintf("Diffraction\n");
+fprintf("b = %.3e +- %.3e\n",b_mean,db_mean);
+fprintf("b_std = %.3e \n",b_std);
+fprintf("Error std = %.3e \n",db_std);
+%% Appendix
+
+%{
 myImage1 = imread('Images/SingleSlitNew/singleSlit.jpg');
 
 %% Display the image as a figure
@@ -98,50 +161,5 @@ ylabel('Normalized signal');
 title('Final step: normalized signal vs angle');
 grid on;
 % b
-%%
-% Diffraction : b
-visualize = true;
-[PKS,LOCS] = find_min(data3,xAxisMm,2.5,inf,visualize);
-y_diffraction = LOCS*10^-3;
-if visualize
-    grid on;
-    xlabel('mm - displacement');
-    ylabel('Normalized signal');
-    title('Normalized signal vs angle with Min peaks');
-    xlim([-100 , 100]);
-    ylim([0 , 1]);
-end
-left_hand = sum(y_diffraction<0);
-right_hand = sum(y_diffraction>=0);
-m = [-left_hand:-1 1:right_hand];
-slit_widths = new_b(y_diffraction,m);
-b_mean = mean(slit_widths);
-b_std = std(slit_widths);
-%% Diffraction Error:
-N_diffraction = length(slit_widths);
-dL = 5*10^-3;
-dP = 25;
-dy = dP/(S*10^3);
-
-mabs = abs(m);
-db =sqrt((dL*lamb*mabs./y_diffraction).^2+(mabs.*L*dy*lamb./(y_diffraction.^2)).^2);
-db_mean = mean(db);
-db_std = std(db);
-fprintf("Diffraction\n");
-fprintf("b = %.3e +- %.3e\n",b_mean,db_mean);
-fprintf("b_std = %.3e \n",b_std);
-fprintf("Error std = %.3e \n",db_std);
-%% ERROR ANALYSIS
-%{
-N = length(bs);
-dL = 5*10^-3;
-dP = 25;
-dS = 0.5*10^-3;
-
-%dy = sqrt((dP/S)^2+(P*dS/(S^2))^2);
-dy = dP/(S*10^3);
-mabs = abs(m);
-db = sqrt((dL*lamb*mabs./ys).^2+(mabs.*L*dy*lamb./(ys.^2)).^2);
-db_mean = mean(db);
 %}
 

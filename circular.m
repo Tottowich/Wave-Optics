@@ -14,9 +14,80 @@ b = 1.5*10^-4;
 L = 0.972;
 minima = [1.220,2.233,3.238];
 new_b = @(y,m) abs(lamb.*minima(m)*L./y);%sind(th);
-rel_err = @(y,m) (new_b(y,m)-b)./b;
-show_steps = true;
+new_rel_err = @(y,m) (new_b(y,m)-b)./b;
+rel_err = @(app,real) abs((app-real)./real);
 %% Import the image to Matlab
+path = 'Images/CircularApature/circularApature.jpg';
+channel = 1;
+rotation = 2.7;
+sec_x = 1500:3000;
+sec_y = 1300:1310;
+baseline_sign = 0; % No baseline subtraction or addition
+shift = (604+929)/2;
+S = (135/5);
+L = 0.972;
+show_steps = true;
+mm_limit = [-100,100];
+deg_limit = [-2,2];
+[xAxisDeg, xAxisMm, data3] = image_process(path,channel,rotation,sec_x, ...
+               sec_y,baseline_sign,shift,S,L,show_steps,mm_limit,deg_limit);
+
+%%
+% Diffraction : b
+visualize = true;
+[PKS,LOCS] = find_min(data3,xAxisMm,1,inf,visualize);
+y_diffraction = LOCS*10^-3;
+if visualize
+    grid on;
+    xlabel('mm - displacement');
+    ylabel('Normalized signal');
+    title('Normalized signal vs angle with Min peaks');
+    xlim([-30 , 30]);
+    ylim([0 , 1]);
+end
+if show_steps
+    plot(xAxisDeg,data3);
+    hold on
+    degs = atand(y_diffraction*L);
+    scatter(degs,PKS,'r^','filled');
+    hold off
+    grid on;
+    xlabel('Angle (°)');
+    ylabel('Normalized signal');
+    title('Normalized signal vs angle with Min peaks');
+    xlim([-2 , 2]);
+    ylim([0 , 1]);
+end
+left_hand = sum(y_diffraction<0);
+right_hand = sum(y_diffraction>=0);
+m = [-left_hand:-1 1:right_hand];
+mabs = abs(m);
+valid_minima = mabs<=3; % Could only find the m-values for minima 1,2 & 3.
+y_diffraction = y_diffraction(valid_minima);
+mabs = mabs(valid_minima);
+slit_widths = new_b(y_diffraction,mabs);
+d_mean = mean(slit_widths);
+d_std = std(slit_widths);
+%% Diffraction Error:
+N_diff = length(slit_widths);
+dL = 5*10^-3;
+dP = 25;
+dy = dP/(S*10^3);
+mabs_circ = minima(mabs);
+dd =sqrt((dL*lamb*mabs_circ./y_diffraction).^2+(mabs_circ.*L*dy*lamb./(y_diffraction.^2)).^2);
+dd_mean = mean(dd);
+dd_std = std(dd);
+fprintf("Diffraction Circular\n");
+fprintf("d = %.3e +- %.3e\n",d_mean,dd_mean);
+fprintf("d_std = %.3e \n",d_std);
+fprintf("Error std = %.3e \n",dd_std);
+fprintf("Relative Error = %.3e \n\n",rel_err(d_mean,b));
+
+
+
+%% Appendix
+%{
+%%
 myImage1 = imread('Images/CircularApature/circularApature.jpg');
 
 %% Display the image as a figure
@@ -77,7 +148,7 @@ end
 % correspond to 50 mm. Therefore, 8.4 px/mm (I leave the error calculations to you :p ).
 % Notice that I have centered the 0 at the main peak.
 xAxisMm = ((1 : length(data2)) - (604+929)/2) / (135/5); % Single Slit
-S = (85/5);
+S = (135/5);
 if show_steps
     figure;
     plot(xAxisMm, data2);
@@ -99,40 +170,5 @@ ylabel('Normalized signal');
 title('Final step: normalized signal vs angle');
 grid on;
 % b
-%%
-% Diffraction : b
-visualize = true;
-[PKS,LOCS] = find_min(data3,xAxisMm,1,inf,visualize);
-y_diffraction = LOCS*10^-3;
-if visualize
-    grid on;
-    xlabel('mm - displacement');
-    ylabel('Normalized signal');
-    title('Normalized signal vs angle with Min peaks');
-    xlim([-30 , 30]);
-    ylim([0 , 1]);
-end
-left_hand = sum(y_diffraction<0);
-right_hand = sum(y_diffraction>=0);
-m = [-left_hand:-1 1:right_hand];
-mabs = abs(m);
-valid_minima = mabs<=3; % Could only find the m-values for minima 1,2 & 3.
-y_diffraction = y_diffraction(valid_minima);
-mabs = mabs(valid_minima);
-slit_widths = new_b(y_diffraction,mabs);
-b_mean = mean(slit_widths);
-b_std = std(slit_widths);
-%% Diffraction Error:
-N_diff = length(slit_widths);
-dL = 5*10^-3;
-dP = 25;
-dy = dP/(S*10^3);
-
-db =sqrt((dL*lamb*mabs./y_diffraction).^2+(mabs.*L*dy*lamb./(y_diffraction.^2)).^2);
-db_mean = mean(db);
-db_std = std(db);
-fprintf("Diffraction\n");
-fprintf("b = %.3e +- %.3e\n",b_mean,db_mean);
-fprintf("b_std = %.3e \n",b_std);
-fprintf("Error std = %.3e \n",db_std);
+%}
 
